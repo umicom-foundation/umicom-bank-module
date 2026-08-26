@@ -58,6 +58,9 @@ endif()
 add_library(umicom_bank_module STATIC
     src/application.c
     src/workspace.c
+    src/runtime.c
+    src/readiness.c
+    src/workspace_commands.c
 )
 add_library(Umicom::bank_module ALIAS umicom_bank_module)
 
@@ -96,6 +99,33 @@ if(BUILD_TESTING)
     umicom_apply_sanitizers(bank-workspace-test)
     add_test(NAME bank.module.workspace
              COMMAND bank-workspace-test)
+
+    add_executable(bank-runtime-test
+        tests/test_runtime.c
+    )
+    target_link_libraries(bank-runtime-test PRIVATE
+        umicom_bank_module
+    )
+    umicom_apply_warnings(bank-runtime-test)
+    umicom_apply_sanitizers(bank-runtime-test)
+    add_test(
+        NAME bank.module.runtime
+        COMMAND bank-runtime-test
+    )
+
+    add_executable(bank-readiness-runtime-test
+        tests/test_readiness_runtime.c
+    )
+    target_link_libraries(bank-readiness-runtime-test PRIVATE
+        umicom_bank_module
+    )
+    umicom_apply_warnings(bank-readiness-runtime-test)
+    umicom_apply_sanitizers(bank-readiness-runtime-test)
+    add_test(
+        NAME bank.module.readiness_runtime
+        COMMAND bank-readiness-runtime-test
+    )
+
 endif()
 
 install(TARGETS umicom_bank_module
