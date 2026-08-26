@@ -38,3 +38,14 @@ UmiStatus umi_bank_runtime_health(
     return umi_application_runtime_health_evaluate(
         experience, probe, user_data, out_health);
 }
+
+/* Compose the Bank overview from the shared Framework finance projection. */
+UmiStatus umi_bank_runtime_create_overview_view(
+    const UmiBankingBankingSnapshot *snapshot,
+    UmiUiViewModel **out_view)
+{
+    /* Delegate the visible projection to Framework finance_ui so Bank does not
+     * introduce a second interpretation of customer or balance state. */
+    return umi_finance_ui_banking_summary_view_create(
+        "overview", snapshot, out_view);
+}

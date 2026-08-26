@@ -38,6 +38,10 @@ if(NOT TARGET Umicom::application)
     message(FATAL_ERROR
         "Umicom Bank requires Framework target Umicom::application")
 endif()
+if(NOT TARGET Umicom::finance_ui)
+    message(FATAL_ERROR
+        "Umicom Bank requires Framework target Umicom::finance_ui")
+endif()
 
 if(NOT COMMAND umicom_apply_warnings)
     function(umicom_apply_warnings target)
@@ -71,6 +75,7 @@ target_include_directories(umicom_bank_module PUBLIC
 target_link_libraries(umicom_bank_module PUBLIC
     Umicom::Framework
     Umicom::application
+    Umicom::finance_ui
 )
 umicom_apply_warnings(umicom_bank_module)
 umicom_apply_sanitizers(umicom_bank_module)
@@ -124,6 +129,19 @@ if(BUILD_TESTING)
     add_test(
         NAME bank.module.readiness_runtime
         COMMAND bank-readiness-runtime-test
+    )
+
+    add_executable(bank-framework-views-test
+        tests/test_framework_views.c
+    )
+    target_link_libraries(bank-framework-views-test PRIVATE
+        Umicom::bank_module
+    )
+    umicom_apply_warnings(bank-framework-views-test)
+    umicom_apply_sanitizers(bank-framework-views-test)
+    add_test(
+        NAME bank.module.framework_views
+        COMMAND bank-framework-views-test
     )
 
 endif()
