@@ -165,3 +165,11 @@ endif()
 
 message(STATUS "Umicom Bank Module version: ${PROJECT_VERSION}")
 message(STATUS "Umicom Bank uses Framework-owned application experience")
+
+include(
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../framework/cmake/UmicomApplicationProductisationContribution.cmake")
+umicom_add_application_productisation_contribution(
+    NAME "bank"
+    TARGET "umicom_bank_productisation"
+    SOURCE "src/productisation_contribution.c"
+    TEST_SOURCE "tests/test_productisation_contribution.c")
