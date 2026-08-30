@@ -5,9 +5,12 @@
  * PURPOSE:
  *   Verify Bank renders Framework banking snapshots through the shared finance UI projection.
  *
- * Created by: Sammy Hegab
- * Organisation: Umicom Foundation
- * Licence: MIT
+ * AUTHOR AND ORGANISATION:
+ * Sammy Hegab
+ * Umicom Foundation
+ *
+ * LICENCE:
+ * MIT
  *---------------------------------------------------------------------------*/
 #include <assert.h>
 

@@ -6,9 +6,12 @@
 #   Build a thin C23 product composition over Framework-owned application
 #   experience, runtime and workbench contracts.
 #
-# Created by: Sammy Hegab
-# Organisation: Umicom Foundation
-# Licence: MIT
+# AUTHOR AND ORGANISATION:
+#   Sammy Hegab
+#   Umicom Foundation
+#
+# LICENCE:
+#   MIT
 #-----------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.24)
 
@@ -60,6 +63,8 @@ if(NOT COMMAND umicom_apply_sanitizers)
 endif()
 
 add_library(umicom_bank_module STATIC
+    src/application_surface.c
+    src/application_surface_controllers.c
     src/application.c
     src/workspace.c
     src/runtime.c
@@ -89,6 +94,15 @@ if(UMICOM_BANK_BUILD_CONSOLE)
 endif()
 
 if(BUILD_TESTING)
+    add_executable(bank-application-surface-test
+        tests/test_application_surface.c)
+    target_link_libraries(bank-application-surface-test PRIVATE
+        Umicom::bank_module)
+    umicom_apply_warnings(bank-application-surface-test)
+    umicom_apply_sanitizers(bank-application-surface-test)
+    add_test(NAME bank.module.application_surface
+             COMMAND bank-application-surface-test)
+
     add_executable(bank-application-test
         tests/test_application.c)
     target_link_libraries(bank-application-test PRIVATE Umicom::bank_module)
