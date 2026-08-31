@@ -170,7 +170,7 @@ if(TARGET umicom-bank-console)
 endif()
 install(DIRECTORY include/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-install(FILES application.umicom.yaml
+install(FILES application.umicom.yaml README.md
     DESTINATION ${CMAKE_INSTALL_DATADIR}/umicom/applications/bank)
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
     install(FILES LICENSE

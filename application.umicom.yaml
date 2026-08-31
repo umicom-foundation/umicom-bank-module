@@ -38,3 +38,8 @@ boundaries:
   owns_reusable_framework_logic: false
   owns_persistence: false
   consumes_framework_services: true
+
+installation:
+  component: Bank
+  selected_by_default: true
+  show_in_application_launcher: true
