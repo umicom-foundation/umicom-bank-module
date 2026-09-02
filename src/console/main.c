@@ -18,6 +18,10 @@
 #include "umicom/bank/application.h"
 #include "umicom/bank/workspace.h"
 
+/*
+ * Start this command or application, report setup failures, and return a process exit code
+ * to the operating system.
+ */
 int main(void)
 {
     UmiApplicationExperienceStatus status;
@@ -28,6 +32,10 @@ int main(void)
     const UmiExperienceFeatureDefinition *next =
         umi_bank_workspace_next_feature();
 
+    /*
+     * Protect caller-owned memory by checking that required state is available before it is
+     * used.
+     */
     if (definition == NULL ||
         umi_bank_application_status(&status) != UMI_STATUS_OK ||
         layout == NULL) {
@@ -42,6 +50,10 @@ int main(void)
     printf("layouts: %zu\n", status.layout_count);
     printf("features: %zu\n", status.feature_count);
     printf("readiness: %u%%\n", status.readiness_percent);
+    /*
+     * Protect caller-owned memory by checking that required state is available before it is
+     * used.
+     */
     if (next != NULL)
         printf("next: %s [%s]\n", next->title,
                umi_experience_priority_text(next->priority));

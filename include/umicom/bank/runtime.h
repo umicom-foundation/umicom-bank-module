@@ -23,12 +23,24 @@
 extern "C" {
 #endif
 
+/**
+ * Initialise bank runtime from caller-provided values so later operations receive a known
+ * state.
+ */
 UmiStatus umi_bank_runtime_init(
     UmiApplicationWorkspaceRuntime *out_runtime);
+/**
+ * Provide the bank runtime health operation used by this module and its client
+ * applications.
+ */
 UmiStatus umi_bank_runtime_health(
     UmiApplicationCapabilityProbe probe,
     void *user_data,
     UmiApplicationRuntimeHealth *out_health);
+/**
+ * Provide the bank runtime experience operation used by this module and its client
+ * applications.
+ */
 const UmiApplicationExperienceDefinition *umi_bank_runtime_experience(void);
 /* Build the Bank overview from a Framework banking snapshot; no balance or
  * accounting logic is owned by the application module. */

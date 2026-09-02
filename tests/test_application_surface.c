@@ -17,6 +17,10 @@
 
 #include <assert.h>
 
+/*
+ * Start this command or application, report setup failures, and return a process exit code
+ * to the operating system.
+ */
 int main(void)
 {
     const UmiApplicationComponentRecipeAudience audiences[] = {
@@ -24,6 +28,7 @@ int main(void)
         UMI_APPLICATION_COMPONENT_RECIPE_AUDIENCE_STANDARD,
         UMI_APPLICATION_COMPONENT_RECIPE_AUDIENCE_FOCUS};
     size_t index;
+    /* Visit each bounded item once so every record receives the same rule. */
     for (index = 0U; index < sizeof(audiences) / sizeof(audiences[0]); ++index) {
         UmiBankApplicationSurface *surface = NULL;
         UmiApplicationPresentationSurfaceSnapshot snapshot;

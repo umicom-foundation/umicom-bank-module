@@ -29,27 +29,38 @@ set(CMAKE_C_EXTENSIONS OFF)
 option(UMICOM_BANK_BUILD_CONSOLE
        "Build the native Umicom Bank verification console"
        ON)
+option(UMICOM_BANK_BUILD_GTK4
+       "Build the Framework-rendered native Umicom Bank workstation"
+       ON)
 
 include(CTest)
 include(GNUInstallDirs)
 
+# Load the dependency only when the parent build has not already provided its target.
 if(NOT TARGET Umicom::Framework)
     find_package(UmicomFramework CONFIG REQUIRED)
 endif()
 
+# Load the dependency only when the parent build has not already provided its target.
 if(NOT TARGET Umicom::application)
     message(FATAL_ERROR
         "Umicom Bank requires Framework target Umicom::application")
 endif()
+# Load the dependency only when the parent build has not already provided its target.
 if(NOT TARGET Umicom::finance_ui)
     message(FATAL_ERROR
         "Umicom Bank requires Framework target Umicom::finance_ui")
 endif()
 
+# Define the local fallback only when the parent build did not provide the shared helper.
 if(NOT COMMAND umicom_apply_warnings)
+    # Define the apply warnings build helper so parent and application projects apply one
+    # consistent rule.
     function(umicom_apply_warnings target)
+        # Select the warning options understood by the active compiler.
         if(MSVC)
             target_compile_options(${target} PRIVATE /W4)
+        # Use this fallback path when the earlier condition does not apply.
         else()
             target_compile_options(${target} PRIVATE
                 -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
@@ -57,7 +68,10 @@ if(NOT COMMAND umicom_apply_warnings)
     endfunction()
 endif()
 
+# Define the local fallback only when the parent build did not provide the shared helper.
 if(NOT COMMAND umicom_apply_sanitizers)
+    # Define the apply sanitizers build helper so parent and application projects apply one
+    # consistent rule.
     function(umicom_apply_sanitizers target)
     endfunction()
 endif()
@@ -85,6 +99,7 @@ target_link_libraries(umicom_bank_module PUBLIC
 umicom_apply_warnings(umicom_bank_module)
 umicom_apply_sanitizers(umicom_bank_module)
 
+# Create this optional product surface only when its build option is enabled.
 if(UMICOM_BANK_BUILD_CONSOLE)
     add_executable(umicom-bank-console
         src/console/main.c)
@@ -93,6 +108,48 @@ if(UMICOM_BANK_BUILD_CONSOLE)
     umicom_apply_sanitizers(umicom-bank-console)
 endif()
 
+# Bank supplies only identity and controllers. Framework owns the complete
+# native shell, reusable panels, layout editing and appearance system.
+if(UMICOM_BANK_BUILD_GTK4 AND TARGET Umicom::ui_gtk4)
+    add_library(umicom_bank_gtk STATIC
+        src/gtk/workstation.c)
+    add_library(Umicom::bank_gtk ALIAS umicom_bank_gtk)
+    target_include_directories(umicom_bank_gtk PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+    target_link_libraries(umicom_bank_gtk PUBLIC
+        Umicom::bank_module
+        Umicom::ui_gtk4)
+    umicom_apply_warnings(umicom_bank_gtk)
+    umicom_apply_sanitizers(umicom_bank_gtk)
+
+    add_executable(umicom-bank src/gtk/main.c)
+    target_link_libraries(umicom-bank PRIVATE Umicom::bank_gtk)
+    umicom_apply_warnings(umicom-bank)
+    umicom_apply_sanitizers(umicom-bank)
+    # Define the local fallback only when the parent build did not provide the shared helper.
+    if(NOT COMMAND umicom_apply_application_branding)
+        include(
+            "${CMAKE_CURRENT_SOURCE_DIR}/../../framework/cmake/UmicomApplicationBranding.cmake")
+    endif()
+    umicom_apply_application_branding(
+        TARGET umicom-bank
+        PRODUCT_NAME "Umicom Bank"
+        INTERNAL_NAME "umicom-bank"
+        APPLICATION_ID "org.umicom.bank"
+        VERSION_MAJOR ${PROJECT_VERSION_MAJOR}
+        VERSION_MINOR ${PROJECT_VERSION_MINOR}
+        VERSION_PATCH ${PROJECT_VERSION_PATCH}
+        RESOURCE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../framework/resources"
+        DESKTOP_ENTRY
+        WINDOWS_GUI)
+# Apply this branch only when its contract condition is satisfied.
+elseif(UMICOM_BANK_BUILD_GTK4)
+    message(STATUS
+        "Umicom Bank native workstation disabled because Umicom::ui_gtk4 is unavailable")
+endif()
+
+# Register verification targets only when the developer has enabled testing.
 if(BUILD_TESTING)
     add_executable(bank-application-surface-test
         tests/test_application_surface.c)
@@ -164,14 +221,21 @@ install(TARGETS umicom_bank_module
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+# Configure the optional target only when its feature has created it.
 if(TARGET umicom-bank-console)
     install(TARGETS umicom-bank-console
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
+# Configure the optional target only when its feature has created it.
+if(TARGET umicom-bank)
+    install(TARGETS umicom-bank
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 install(DIRECTORY include/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 install(FILES application.umicom.yaml README.md
     DESTINATION ${CMAKE_INSTALL_DATADIR}/umicom/applications/bank)
+# Use the optional file only when it is present in this checkout.
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
     install(FILES LICENSE
         DESTINATION ${CMAKE_INSTALL_DATADIR}/licenses/bank)

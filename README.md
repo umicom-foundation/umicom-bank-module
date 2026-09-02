@@ -8,6 +8,7 @@ Framework product surface. Product controllers provide honest empty states and
 stage financial commands for authorization without claiming that money moved.
 See [the Bank application surface guide](docs/APPLICATION_SURFACE_GUIDE.md).
 
-The Windows suite installer exposes Bank as the optional **Bank** component.
-Until its graphical frontend is added, Umicom Desk launches the current Bank
-console through the same Framework-owned multi-application launcher.
+The native `umicom-bank` workstation renders these live product surfaces with
+Framework-owned identity, appearance, docking, floating, grouping and layout
+editing. The console remains available for small verification and automation
+tasks. Umicom Desk launches the native workstation when Bank is selected.

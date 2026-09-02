@@ -25,11 +25,23 @@ extern "C" {
 
 #define UMI_BANK_MODULE_API_VERSION 1U
 
+/**
+ * Provide the bank application id operation used by this module and its client
+ * applications.
+ */
 const char *umi_bank_application_id(void);
 
+/**
+ * Provide the bank application experience operation used by this module and its client
+ * applications.
+ */
 const UmiApplicationExperienceDefinition *
 umi_bank_application_experience(void);
 
+/**
+ * Provide the bank application status operation used by this module and its client
+ * applications.
+ */
 UmiStatus umi_bank_application_status(
     UmiApplicationExperienceStatus *out_status);
 
