@@ -49,7 +49,9 @@ UmiStatus umi_bank_gtk_workstation_create(
         "Umicom Bank",
         umi_bank_application_surface_controllers_register,
         NULL);
-    config.mode_badge = "Secure";
+    /* Until an approved provider and authenticated session are present, the
+     * window reports its truthful operating state instead of a security claim. */
+    config.mode_badge = "Offline";
     status = umi_application_product_gtk4_workstation_create(
         &config, &workstation->framework_workstation);
     /* Preserve the original failure result so the caller can respond to the correct cause. */
