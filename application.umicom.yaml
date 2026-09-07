@@ -5,7 +5,9 @@ application:
   name: Umicom Bank
   short_name: Bank
   version: 0.1.0
-  executable: umicom-bank-console
+  executable: umicom-bank
+  native_executable: umicom-bank
+  console_executable: umicom-bank-console
   aliases: [bank]
 
 framework:
@@ -14,6 +16,7 @@ framework:
 
 frontends:
   - console
+  - gtk
 
 entry:
   kind: workbench
@@ -33,6 +36,7 @@ source_layout:
   product_root: src
   composition_root: src
   console_frontend: src/console
+  gtk_frontend: src/gtk
 
 boundaries:
   owns_reusable_framework_logic: false

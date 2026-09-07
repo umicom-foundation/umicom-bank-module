@@ -32,6 +32,17 @@ typedef struct UmiBankGtkWorkstation UmiBankGtkWorkstation;
 /** Create Bank's thin shell over the shared native product workstation. */
 UmiStatus umi_bank_gtk_workstation_create(
     UmiBankGtkWorkstation **out_workstation);
+/** Bind the existing shared product identity to a native window before its
+ * first realization. The Framework owns titlebar composition and lifetime;
+ * no application catalogue or appearance state is duplicated. */
+UmiStatus umi_bank_gtk_workstation_bind_window(
+    UmiBankGtkWorkstation *workstation, GtkWindow *window);
+/** Explicitly enable shared user-local SQLite layout checkpoints.
+ * Native launchers opt in after construction; constructors do no checkpoint I/O.
+ * A failed restore leaves the current layout visible and reports its error. */
+UmiStatus umi_bank_gtk_workstation_enable_checkpoint_storage(
+    UmiBankGtkWorkstation *workstation, int restore_saved);
+
 /** Release the thin shell and the Framework services which it owns. */
 void umi_bank_gtk_workstation_destroy(UmiBankGtkWorkstation *workstation);
 /** Borrow the Framework root widget for a native application window. */
