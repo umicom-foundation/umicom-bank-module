@@ -3,8 +3,8 @@
  * File: src/application_surface_controllers.c
  *
  * PURPOSE:
- *   Describe honest Bank panel states and keep financial commands staged for
- *   authorization instead of pretending a live transaction was executed.
+ *   Describe Bank panel state and reject unavailable financial commands
+ *   without claiming that a payment or approval request has been created.
  *
  * AUTHOR AND ORGANISATION:
  * Sammy Hegab
@@ -54,6 +54,7 @@ static UmiStatus bank_controller(
     UmiApplicationPresentationSurfaceUpdate *out_update)
 {
     (void)context;
+    (void)payload;
     /*
      * Protect caller-owned memory by checking that required state is available before it is
      * used.
@@ -70,13 +71,8 @@ static UmiStatus bank_controller(
     }
     /* Apply this branch only when its contract condition is satisfied. */
     if (event == UMI_APPLICATION_PRESENTATION_EVENT_COMMAND) {
-        out_update->state =
-            UMI_APPLICATION_PRESENTATION_STATE_PERMISSION_REQUIRED;
-        (void)snprintf(out_update->message, sizeof(out_update->message),
-                       "Bank command '%s' is staged and requires authorization.",
-                       payload != NULL ? payload : "");
-        (void)snprintf(out_update->badge, sizeof(out_update->badge), "SAFE");
-        return UMI_STATUS_OK;
+        return UmiApplicationPresentationSurfaceFailure(UMI_STATUS_NOT_IMPLEMENTED,
+            "No banking command service is connected. No payment or approval request was created.", out_update);
     }
     out_update->state = UMI_APPLICATION_PRESENTATION_STATE_EMPTY;
     (void)snprintf(out_update->message, sizeof(out_update->message), "%s",

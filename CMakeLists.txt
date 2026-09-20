@@ -217,6 +217,18 @@ if(BUILD_TESTING)
 
 endif()
 
+# Commands without a provider must not become fictional approval requests.
+if(BUILD_TESTING)
+    add_executable(bank-command-feedback-test tests/test_command_feedback.c)
+    target_link_libraries(bank-command-feedback-test PRIVATE Umicom::bank_module)
+    umicom_apply_warnings(bank-command-feedback-test)
+    umicom_apply_sanitizers(bank-command-feedback-test)
+    foreach(case IN ITEMS command dirty refresh)
+        add_test(NAME bank.command_feedback.${case} COMMAND bank-command-feedback-test ${case})
+        set_tests_properties(bank.command_feedback.${case} PROPERTIES TIMEOUT 30)
+    endforeach()
+endif()
+
 install(TARGETS umicom_bank_module
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
