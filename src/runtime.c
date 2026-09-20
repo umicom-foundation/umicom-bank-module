@@ -72,3 +72,11 @@ UmiStatus umi_bank_runtime_create_overview_view(
     return umi_finance_ui_banking_summary_view_create(
         "overview", snapshot, out_view);
 }
+
+/* Product composition delegates the financial calculation to Framework. */
+UmiStatus UmiBankRuntimeReviewFunds(const UmiMoney *ledger,
+    const UmiMoney *reserved, const UmiMoney *proposedPayment,
+    UmiFinanceAccountReview *out)
+{
+    return UmiFinanceReviewAccount(ledger, reserved, proposedPayment, out);
+}

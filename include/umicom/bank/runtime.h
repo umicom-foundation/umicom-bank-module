@@ -17,6 +17,7 @@
 #define UMICOM_BANK_RUNTIME_H
 
 #include "umicom/application/runtime/runtime.h"
+#include "umicom/finance_ui/funds_review.h"
 #include "umicom/finance_ui/finance_ui.h"
 
 #ifdef __cplusplus
@@ -48,6 +49,13 @@ UmiStatus umi_bank_runtime_create_overview_view(
     const UmiBankingBankingSnapshot *snapshot,
     UmiUiViewModel **out_view);
 
+
+/** Review caller-supplied balances; creates no payment or account mutation.
+ * Delegates to Framework funds_review.h. The example and regression check
+ * both the available balance and the amount remaining after a proposed debit. */
+UmiStatus UmiBankRuntimeReviewFunds(const UmiMoney *ledger,
+    const UmiMoney *reserved, const UmiMoney *proposedPayment,
+    UmiFinanceAccountReview *out);
 #ifdef __cplusplus
 }
 #endif

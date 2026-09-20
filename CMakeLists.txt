@@ -263,3 +263,21 @@ umicom_add_application_productisation_contribution(
     TARGET "umicom_bank_productisation"
     SOURCE "src/productisation_contribution.c"
     TEST_SOURCE "tests/test_productisation_contribution.c")
+
+# The product entry point delegates to the same Framework review used by GTK.
+if(BUILD_TESTING)
+    add_executable(bank-workflow-tools-test tests/test_workflow_tools.c)
+    target_link_libraries(bank-workflow-tools-test PRIVATE Umicom::bank_module)
+    if(COMMAND umicom_apply_warnings)
+        umicom_apply_warnings(bank-workflow-tools-test)
+        umicom_apply_sanitizers(bank-workflow-tools-test)
+    endif()
+    foreach(case IN ITEMS valid currency overflow no-side-effects)
+        add_test(NAME bank.workflow_tools.${case} COMMAND bank-workflow-tools-test ${case})
+        set_tests_properties(bank.workflow_tools.${case} PROPERTIES TIMEOUT 30 LABELS "bank;workflow;regression")
+    endforeach()
+endif()
+
+# Install the public workflow lesson beside this product's other guides.
+install(FILES docs/WORKFLOW_TOOLS.html
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/umicom/bank/docs)
