@@ -281,3 +281,31 @@ endif()
 # Install the public workflow lesson beside this product's other guides.
 install(FILES docs/WORKFLOW_TOOLS.html
     DESTINATION ${CMAKE_INSTALL_DATADIR}/umicom/bank/docs)
+
+# Banking operations are selected here, but their services, adapter, tests and
+# installation policy live in Framework. Existing manual review, workspaces,
+# commands and unavailable-provider behaviour remain unchanged.
+if(NOT TARGET Umicom::bank_operations)
+    include("${CMAKE_CURRENT_SOURCE_DIR}/../../framework/cmake/UmicomBankOperations.cmake")
+endif()
+target_sources(umicom_bank_module PRIVATE src/operations.c)
+target_link_libraries(umicom_bank_module PUBLIC Umicom::bank_operations)
+if(TARGET umicom_bank_gtk)
+    if(NOT TARGET Umicom::bank_operations_gtk4)
+        message(FATAL_ERROR "Bank's operational launcher requires the Framework banking GTK4 adapter")
+    endif()
+    target_link_libraries(umicom_bank_gtk PUBLIC Umicom::bank_operations_gtk4)
+endif()
+if(UMICOM_BANK_BUILD_CONSOLE OR BUILD_TESTING)
+    add_executable(umicom-bank-operations-example src/console/operations_example.c)
+    target_link_libraries(umicom-bank-operations-example PRIVATE Umicom::bank_module)
+    umicom_apply_warnings(umicom-bank-operations-example)
+    umicom_apply_sanitizers(umicom-bank-operations-example)
+    if(BUILD_TESTING)
+        add_test(NAME bank.operations.composition COMMAND umicom-bank-operations-example)
+        set_tests_properties(bank.operations.composition PROPERTIES TIMEOUT 30 LABELS "bank;bank-operations;regression")
+    endif()
+    if(UMICOM_BANK_BUILD_CONSOLE)
+        install(TARGETS umicom-bank-operations-example RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    endif()
+endif()

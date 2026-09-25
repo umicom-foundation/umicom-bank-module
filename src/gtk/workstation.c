@@ -17,6 +17,7 @@
 
 #include <stdlib.h>
 #include "umicom/ui/gtk4/finance_review.h"
+#include "umicom/ui/gtk4/bank_operations.h"
 
 #include "umicom/bank/application_surface.h"
 #include "umicom/bank/application_surface_controllers.h"
@@ -71,6 +72,10 @@ UmiStatus umi_bank_gtk_workstation_create(
     }
     workstation->root = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     g_object_ref_sink(workstation->root);
+    /* Add the shared operational workspace without replacing the manual review
+     * or existing product body. Framework owns the launcher, per-user storage,
+     * domain commands and projections; this application supplies composition. */
+    gtk_box_append(GTK_BOX(workstation->root), UmiGtk4BankOperationsLauncherCreate());
     gtk_box_append(GTK_BOX(workstation->root), review);
     GtkWidget *inner = umi_application_product_gtk4_workstation_widget(workstation->framework_workstation);
     gtk_widget_set_vexpand(inner, TRUE);
