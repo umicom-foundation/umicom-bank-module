@@ -165,3 +165,18 @@ UmiStatus umi_bank_gtk_workstation_snapshot(
               workstation->framework_workstation, out_snapshot)
         : UMI_STATUS_INVALID_ARGUMENT;
 }
+
+/* Product composition delegates named-layout ownership and storage evidence
+ * to Framework. Financial commands remain on their separate service owner. */
+UmiStatus umi_bank_gtk_workstation_bind_checkpoint_storage(UmiBankGtkWorkstation *workstation, UmiDataServer *server)
+{
+    return workstation != NULL ? umi_application_product_gtk4_workstation_bind_checkpoint_storage(workstation->framework_workstation, server) : UMI_STATUS_INVALID_ARGUMENT;
+}
+UmiStatus umi_bank_gtk_workstation_library_snapshot(UmiBankGtkWorkstation *workstation, UmiUiWorkspaceLibrarySnapshot *out_snapshot)
+{
+    return workstation != NULL ? umi_application_product_gtk4_workstation_library_snapshot(workstation->framework_workstation, out_snapshot) : UMI_STATUS_INVALID_ARGUMENT;
+}
+UmiStatus umi_bank_gtk_workstation_library_preview(UmiBankGtkWorkstation *workstation, UmiUiWorkspaceLibraryPreview *out_preview)
+{
+    return workstation != NULL ? umi_application_product_gtk4_workstation_library_preview(workstation->framework_workstation, out_preview) : UMI_STATUS_INVALID_ARGUMENT;
+}
