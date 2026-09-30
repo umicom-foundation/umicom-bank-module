@@ -1,4 +1,4 @@
-﻿# Umicom Bank Module
+# Umicom Bank Module
 
 Thin C23 product composition built from Framework-owned banking, payments,
 positions, digital assets, risk, settlement, collateral and audit components.
