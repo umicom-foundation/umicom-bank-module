@@ -68,6 +68,17 @@ int main(void)
     if (status == UMI_STATUS_OK) status = UmiBankOperationsBalance(operations, "example-savings", &destination);
     if (status == UMI_STATUS_OK && (source.booked.minor_units != 75000 || destination.booked.minor_units != 25000 ||
         source.reserved.minor_units != 0 || destination.reserved.minor_units != 0)) status = UMI_STATUS_INTERNAL_ERROR;
+    /* Export through the product seam; balances stay authoritative in
+     * Framework and the CSV discloses exact minor units and local scope. */
+    if (status == UMI_STATUS_OK) {
+        UmiCsvDocument *statement = NULL; UmiBankCounts counts;
+        status = UmiBankOperationsCounts(operations, &counts);
+        if (status == UMI_STATUS_OK) status = UmiBankExportStatementCsv(operations,
+            "example-current", 1U, counts.revision, &statement);
+        if (status == UMI_STATUS_OK && (strstr(UmiCsvDocumentData(statement), "LOCAL PRACTICE") == NULL ||
+            strstr(UmiCsvDocumentData(statement), "\"75000\"") == NULL)) status = UMI_STATUS_INTERNAL_ERROR;
+        UmiCsvDocumentDestroy(statement);
+    }
     if (status == UMI_STATUS_OK) {
         (void)printf("PASS: Framework-owned local banking example.\n"
             "Current: GBP %" PRId64 " minor; savings: GBP %" PRId64 " minor.\n"
