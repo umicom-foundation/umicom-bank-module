@@ -67,6 +67,31 @@ UmiStatus umi_bank_gtk_workstation_library_snapshot(UmiBankGtkWorkstation *works
  * Later Restore rereads storage. Failure leaves output unchanged. */
 UmiStatus umi_bank_gtk_workstation_library_preview(UmiBankGtkWorkstation *workstation, UmiUiWorkspaceLibraryPreview *out_preview);
 
+/* Layout recovery stays with Framework. This owner-thread call neither
+ * saves product data nor runs a trade, payment or project command. */
+UmiStatus umi_bank_gtk_workstation_library_history_read(UmiBankGtkWorkstation *workstation,
+    UmiUiWorkspaceLibraryHistoryState *out_state);
+/* Layout recovery stays with Framework. This owner-thread call neither
+ * saves product data nor runs a trade, payment or project command. */
+UmiStatus umi_bank_gtk_workstation_library_history_navigate(UmiBankGtkWorkstation *workstation,
+    UmiUiWorkspaceLibraryHistoryDirection direction, uint64_t expected_revision);
+/* Layout recovery stays with Framework. This owner-thread call neither
+ * saves product data nor runs a trade, payment or project command. */
+UmiStatus umi_bank_gtk_workstation_library_export(UmiBankGtkWorkstation *workstation,
+    char *bytes, size_t capacity, size_t *out_size);
+/* Layout recovery stays with Framework. This owner-thread call neither
+ * saves product data nor runs a trade, payment or project command. */
+UmiStatus umi_bank_gtk_workstation_library_import_review(UmiBankGtkWorkstation *workstation,
+    const void *bytes, size_t size, UmiUiWorkspaceLibraryImport **out_review);
+/* Layout recovery stays with Framework. This owner-thread call neither
+ * saves product data nor runs a trade, payment or project command. */
+UmiStatus umi_bank_gtk_workstation_library_import_apply(UmiBankGtkWorkstation *workstation,
+    const UmiUiWorkspaceLibraryImport *review);
+/* Layout recovery stays with Framework. This owner-thread call neither
+ * saves product data nor runs a trade, payment or project command. */
+UmiStatus umi_bank_gtk_workstation_library_apply(UmiBankGtkWorkstation *workstation,
+    const UmiUiWorkspaceLibraryRequest *request);
+
 #ifdef __cplusplus
 }
 #endif

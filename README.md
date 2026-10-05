@@ -59,3 +59,41 @@ release or cancellation using the existing command workflow.
 ## Investigate accepted command history
 
 [Follow an accepted banking request](docs/INVESTIGATING_ACCEPTED_COMMANDS.md) explains exact filters, captured command details and linked posting or reversal journals.
+
+## Review linked context values
+
+Bank exposes Framework's reviewed context changes through
+`umi_bank_workspace_context_review`, `umi_bank_workspace_context_apply`
+and `umi_bank_workspace_clear_context` in
+`umicom/bank/workspace_commands.h`. A context group is a named value that
+related panels can share; for example, a host could use `accounts.primary` with the sample
+value `practice-account`. The host must connect that name to its panel consumers.
+
+1. Use a runtime initialised with this product's canonical experience. Prepare
+   the requested changes with the review function; preparation changes no live state.
+2. Display the copied Framework summary and rows. Keep the runtime and its
+   workbench alive while the user reviews the proposed values. If the summary
+   reports UI differences, show the captured UI value beside the cached value.
+3. Apply only after acceptance, then destroy the review. If the workspace changed,
+   prepare a fresh review. Cancelling only destroys the review.
+
+This is a module API; native review screens are separate host work. Context edits
+do not execute product commands or external operations. The shared guide at
+`framework/docs/guides/REVIEWING_LINKED_CONTEXTS.html` in the Applications checkout
+explains capacity, ownership, thread coordination and recovery in more detail.
+
+Workspace recovery: [Review saved workspace arrangements](../../framework/docs/learning/restore-saved-workspaces.html). The guide explains the complete comparison, explicit confirmation and recovery limits.
+
+
+### Dated cash planning
+
+Open **Cash planning** to maintain local dated inflows and outflows. Apply the
+plan's settings, add entries with unique IDs, and inspect end-of-day balances and
+the first projected buffer shortfall. You can disable or edit an entry, undo the
+last stored change, save a new JSON file, review a loaded plan before applying
+it, and export a CSV report with explicit currency and minor units.
+
+Framework owns the complete workflow. These are manual assumptions; the planner
+does not read account balances, broker buying power, submit payments or place
+orders. Save explicitly before closing. See Framework's
+`docs/learning/cash-planning.html` for a worked example and recovery steps.

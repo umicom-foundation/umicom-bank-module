@@ -23,6 +23,8 @@ int main(void)
 {
     if(!gtk_init_check())return 77;
     UmiBankGtkWorkstation *bank=NULL;UmiDataServer *server=NULL;
+    char *archive = NULL;
+    UmiUiWorkspaceLibraryImport *review = NULL;
     UmiUiWorkspaceLibrarySnapshot before,after;UmiUiWorkspaceLibraryPreview preview;
     UmiApplicationProductGtk4WorkstationSnapshot product_before,product_after;
     int failed=0;size_t target=SIZE_MAX;
@@ -45,11 +47,47 @@ int main(void)
     CHECK(umi_bank_gtk_workstation_library_preview(bank,&preview)==UMI_STATUS_OK);
     CHECK(preview.comparison.changed_count==0 && preview.comparison.added_count==0 && preview.comparison.removed_count==0);
     CHECK(preview.saved.rows[target].active && umi_data_server_count(server)==records);
+    /* Portable layout review has no bank posting authority. Freeze exported
+     * bytes, refuse a stale review, then exercise native recovery controls. */
+    UmiUiWorkspaceLibrarySnapshot original, renamed, recovered;
+    UmiUiWorkspaceLibraryHistoryState history;
+    size_t archive_size = 0U;
+    CHECK(umi_bank_gtk_workstation_library_snapshot(bank, &original) == UMI_STATUS_OK);
+    CHECK(umi_bank_gtk_workstation_library_export(bank, NULL, 0U, &archive_size) == UMI_STATUS_OK);
+    archive = g_try_malloc(archive_size + 1U); CHECK(archive != NULL);
+    CHECK(umi_bank_gtk_workstation_library_export(bank, archive, archive_size + 1U, &archive_size) == UMI_STATUS_OK);
+    CHECK(umi_bank_gtk_workstation_library_import_review(bank, archive, archive_size, &review) == UMI_STATUS_OK);
+    UmiUiWorkspaceLibraryRequest rename = {UMI_UI_WORKSPACE_LIBRARY_RENAME, original.rows[0].layout_id,
+        NULL, "Bank review workspace", original.customisation_revision, false};
+    CHECK(umi_bank_gtk_workstation_library_apply(bank, &rename) == UMI_STATUS_OK);
+    CHECK(umi_bank_gtk_workstation_library_snapshot(bank, &renamed) == UMI_STATUS_OK);
+    CHECK(umi_bank_gtk_workstation_library_import_apply(bank, review) == UMI_STATUS_INVALID_STATE);
+    umi_ui_workspace_library_import_destroy(review); review = NULL;
+    CHECK(umi_bank_gtk_workstation_library_import_review(bank, archive, archive_size, &review) == UMI_STATUS_OK);
+    archive[0] = '!';
+    CHECK(umi_bank_gtk_workstation_library_import_apply(bank, review) == UMI_STATUS_OK);
+    CHECK(umi_bank_gtk_workstation_library_snapshot(bank, &recovered) == UMI_STATUS_OK);
+    CHECK(strcmp(recovered.rows[0].name, original.rows[0].name) == 0);
+    CHECK(umi_bank_gtk_workstation_library_history_read(bank, &history) == UMI_STATUS_OK);
+    CHECK(history.undo_count != 0U && !history.stale);
+    CHECK(umi_bank_gtk_workstation_library_history_navigate(bank, UMI_UI_WORKSPACE_LIBRARY_HISTORY_UNDO,
+        renamed.customisation_revision) == UMI_STATUS_INVALID_STATE);
+    GtkWidget *undo = Find(popover, "workstation.layout-library.undo");
+    GtkWidget *redo = Find(popover, "workstation.layout-library.redo");
+    CHECK(GTK_IS_BUTTON(undo) && GTK_IS_BUTTON(redo) && gtk_widget_get_sensitive(undo));
+    g_signal_emit_by_name(undo, "clicked"); Drain();
+    CHECK(umi_bank_gtk_workstation_library_snapshot(bank, &recovered) == UMI_STATUS_OK);
+    CHECK(strcmp(recovered.rows[0].name, renamed.rows[0].name) == 0 && gtk_widget_get_sensitive(redo));
+    g_signal_emit_by_name(redo, "clicked"); Drain();
+    CHECK(umi_bank_gtk_workstation_library_snapshot(bank, &recovered) == UMI_STATUS_OK);
+    CHECK(strcmp(recovered.rows[0].name, original.rows[0].name) == 0);
+    CHECK(recovered.layout_count == original.layout_count && umi_data_server_count(server) == records);
     CHECK(umi_bank_gtk_workstation_snapshot(bank,&product_after)==UMI_STATUS_OK);
     CHECK(product_after.surface.revision==product_before.surface.revision);
     CHECK(product_after.surface.dirty_count==product_before.surface.dirty_count);
     CHECK(product_after.surface.guarded_command_count==product_before.surface.guarded_command_count);
     CHECK(umi_bank_gtk_workstation_bind_checkpoint_storage(bank,NULL)==UMI_STATUS_OK);
 cleanup:
+    umi_ui_workspace_library_import_destroy(review); g_free(archive);
     umi_bank_gtk_workstation_destroy(bank);umi_data_server_destroy(server);return failed;
 }

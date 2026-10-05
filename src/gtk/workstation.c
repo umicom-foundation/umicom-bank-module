@@ -17,6 +17,7 @@
 
 #include <stdlib.h>
 #include "umicom/ui/gtk4/finance_review.h"
+#include "umicom/ui/gtk4/cash_plan.h"
 #include "umicom/ui/gtk4/bank_operations.h"
 
 #include "umicom/bank/application_surface.h"
@@ -76,6 +77,8 @@ UmiStatus umi_bank_gtk_workstation_create(
      * or existing product body. Framework owns the launcher, per-user storage,
      * domain commands and projections; this application supplies composition. */
     gtk_box_append(GTK_BOX(workstation->root), UmiGtk4BankOperationsLauncherCreate());
+    /* Dated planning shares the Framework owner and never changes account balances. */
+    gtk_box_append(GTK_BOX(workstation->root), UmiGtk4CashPlanLauncherCreate());
     gtk_box_append(GTK_BOX(workstation->root), review);
     GtkWidget *inner = umi_application_product_gtk4_workstation_widget(workstation->framework_workstation);
     gtk_widget_set_vexpand(inner, TRUE);
@@ -179,4 +182,58 @@ UmiStatus umi_bank_gtk_workstation_library_snapshot(UmiBankGtkWorkstation *works
 UmiStatus umi_bank_gtk_workstation_library_preview(UmiBankGtkWorkstation *workstation, UmiUiWorkspaceLibraryPreview *out_preview)
 {
     return workstation != NULL ? umi_application_product_gtk4_workstation_library_preview(workstation->framework_workstation, out_preview) : UMI_STATUS_INVALID_ARGUMENT;
+}
+
+/* Layout recovery stays with Framework. This owner-thread call neither
+ * saves product data nor runs a trade, payment or project command. */
+UmiStatus umi_bank_gtk_workstation_library_history_read(UmiBankGtkWorkstation *workstation,
+    UmiUiWorkspaceLibraryHistoryState *out_state)
+{
+    if (workstation == NULL) return UMI_STATUS_INVALID_ARGUMENT;
+    return umi_application_product_gtk4_workstation_library_history_read(workstation->framework_workstation, out_state);
+}
+
+/* Layout recovery stays with Framework. This owner-thread call neither
+ * saves product data nor runs a trade, payment or project command. */
+UmiStatus umi_bank_gtk_workstation_library_history_navigate(UmiBankGtkWorkstation *workstation,
+    UmiUiWorkspaceLibraryHistoryDirection direction, uint64_t expected_revision)
+{
+    if (workstation == NULL) return UMI_STATUS_INVALID_ARGUMENT;
+    return umi_application_product_gtk4_workstation_library_history_navigate(workstation->framework_workstation, direction, expected_revision);
+}
+
+/* Layout recovery stays with Framework. This owner-thread call neither
+ * saves product data nor runs a trade, payment or project command. */
+UmiStatus umi_bank_gtk_workstation_library_export(UmiBankGtkWorkstation *workstation,
+    char *bytes, size_t capacity, size_t *out_size)
+{
+    if (workstation == NULL) return UMI_STATUS_INVALID_ARGUMENT;
+    return umi_application_product_gtk4_workstation_library_export(workstation->framework_workstation, bytes, capacity, out_size);
+}
+
+/* Layout recovery stays with Framework. This owner-thread call neither
+ * saves product data nor runs a trade, payment or project command. */
+UmiStatus umi_bank_gtk_workstation_library_import_review(UmiBankGtkWorkstation *workstation,
+    const void *bytes, size_t size, UmiUiWorkspaceLibraryImport **out_review)
+{
+    if (workstation == NULL) return UMI_STATUS_INVALID_ARGUMENT;
+    return umi_application_product_gtk4_workstation_library_import_review(workstation->framework_workstation, bytes, size, out_review);
+}
+
+/* Layout recovery stays with Framework. This owner-thread call neither
+ * saves product data nor runs a trade, payment or project command. */
+UmiStatus umi_bank_gtk_workstation_library_import_apply(UmiBankGtkWorkstation *workstation,
+    const UmiUiWorkspaceLibraryImport *review)
+{
+    if (workstation == NULL) return UMI_STATUS_INVALID_ARGUMENT;
+    return umi_application_product_gtk4_workstation_library_import_apply(workstation->framework_workstation, review);
+}
+
+/* Layout recovery stays with Framework. This owner-thread call neither
+ * saves product data nor runs a trade, payment or project command. */
+UmiStatus umi_bank_gtk_workstation_library_apply(UmiBankGtkWorkstation *workstation,
+    const UmiUiWorkspaceLibraryRequest *request)
+{
+    if (workstation == NULL) return UMI_STATUS_INVALID_ARGUMENT;
+    return umi_application_product_gtk4_workstation_library_apply(workstation->framework_workstation, request);
 }

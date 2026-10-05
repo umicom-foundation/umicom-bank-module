@@ -470,3 +470,20 @@ if(UMICOM_BANK_BUILD_CONSOLE OR BUILD_TESTING)
     endif()
 endif()
 install(FILES docs/INVESTIGATING_ACCEPTED_COMMANDS.md DESTINATION ${CMAKE_INSTALL_DATADIR}/umicom/bank/docs)
+
+# Exercise the product identity boundary against the shared transaction owner.
+if(BUILD_TESTING)
+    add_executable(umicom_bank_module-context-review-test tests/test_context_review.c)
+    target_link_libraries(umicom_bank_module-context-review-test PRIVATE umicom_bank_module)
+    umicom_apply_warnings(umicom_bank_module-context-review-test)
+    umicom_apply_sanitizers(umicom_bank_module-context-review-test)
+    foreach(context_case publication stale foreign clear divergent_ui)
+        add_test(NAME bank.context_review.${context_case}
+            COMMAND umicom_bank_module-context-review-test ${context_case})
+        set_tests_properties(bank.context_review.${context_case} PROPERTIES
+            LABELS "application;context-review;bank")
+    endforeach()
+    if(COMMAND umicom_register_validation_target)
+        umicom_register_validation_target(umicom_bank_module-context-review-test)
+    endif()
+endif()
