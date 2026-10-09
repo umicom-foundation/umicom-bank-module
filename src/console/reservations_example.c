@@ -41,7 +41,16 @@ int main(void)
     c=Command(operations,action,"manual-reservation",5);UmiBankReview *review=NULL;
     REQUIRE(UmiBankReviewReservationRelease(operations,report,0U,&actor,&c,&review)==UMI_STATUS_OK);
     UmiBankBalance balance;REQUIRE(UmiBankOperationsBalance(operations,"account",&balance)==UMI_STATUS_OK && balance.available.minor_units==8000);
+/* The review formatter reports insufficient capacity when asked for its size. Preserve the earlier success-only check for review; the replacement follows the shared formatter contract. */
+#if 0
     REQUIRE(UmiBankReviewDescribe(review,NULL,0,&required)==UMI_STATUS_OK);text=malloc(required);REQUIRE(text!=NULL);
+#endif
+    /* A sizing query reports the capacity needed, including the terminator.
+     * Allocate only after confirming that the review returned that contract. */
+    REQUIRE(UmiBankReviewDescribe(review, NULL, 0U, &required) ==
+            UMI_STATUS_CAPACITY_EXCEEDED && required > 1U);
+    text = malloc(required);
+    REQUIRE(text != NULL);
     REQUIRE(UmiBankReviewDescribe(review,text,required,NULL)==UMI_STATUS_OK);fputs(text,stdout);free(text);
     /* The lesson deliberately chooses to apply the reviewed local release here.
      * A product must wait for a separate explicit user decision at this point. */
