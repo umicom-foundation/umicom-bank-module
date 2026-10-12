@@ -97,3 +97,12 @@ Framework owns the complete workflow. These are manual assumptions; the planner
 does not read account balances, broker buying power, submit payments or place
 orders. Save explicitly before closing. See Framework's
 `docs/learning/cash-planning.html` for a worked example and recovery steps.
+
+
+### Statement balance comparison
+Open **Bank transaction reports**, import a saved Open Banking JSON response,
+select an account and currency, then choose **Reconcile selected account**.
+The shared Framework review compares dated booked activity with opening and
+closing balances you supply. Pending entries remain separate, and edits
+invalidate the previous export. This does not connect to a bank or post money.
+See [the statement review guide](docs/STATEMENT_RECONCILIATION.html).

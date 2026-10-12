@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include "umicom/ui/gtk4/finance_review.h"
 #include "umicom/ui/gtk4/cash_plan.h"
+#include "umicom/ui/gtk4/bank_feed.h"
 #include "umicom/ui/gtk4/bank_operations.h"
 
 #include "umicom/bank/application_surface.h"
@@ -79,6 +80,9 @@ UmiStatus umi_bank_gtk_workstation_create(
     gtk_box_append(GTK_BOX(workstation->root), UmiGtk4BankOperationsLauncherCreate());
     /* Dated planning shares the Framework owner and never changes account balances. */
     gtk_box_append(GTK_BOX(workstation->root), UmiGtk4CashPlanLauncherCreate());
+    /* Import and reconcile privately held statements through the shared owner.
+     * This review does not post into practice accounts or treasury plans. */
+    gtk_box_append(GTK_BOX(workstation->root), UmiBankFeedGtk4LauncherCreate());
     gtk_box_append(GTK_BOX(workstation->root), review);
     GtkWidget *inner = umi_application_product_gtk4_workstation_widget(workstation->framework_workstation);
     gtk_widget_set_vexpand(inner, TRUE);
