@@ -492,3 +492,34 @@ endif()
 # Install the shared workflow explanation beside this product's existing guides.
 install(FILES docs/STATEMENT_RECONCILIATION.html
     DESTINATION ${CMAKE_INSTALL_DATADIR}/umicom/bank/docs)
+
+# Use the shared synthetic financial-message workflow; older SDKs retain the
+# original console and report an unavailable optional command explicitly.
+if(TARGET umicom-bank-console AND TARGET Umicom::finance)
+    target_link_libraries(umicom-bank-console PRIVATE Umicom::finance)
+    get_target_property(_bank_ufmp_definitions Umicom::finance INTERFACE_COMPILE_DEFINITIONS)
+    if(BUILD_TESTING AND "UMICOM_HAS_UFMP_FOUNDATION=1" IN_LIST _bank_ufmp_definitions)
+        add_test(NAME bank.ufmp.simulation COMMAND umicom-bank-console --ufmp-simulate)
+        set_tests_properties(bank.ufmp.simulation PROPERTIES TIMEOUT 30
+            PASS_REGULAR_EXPRESSION "Changed payload refused: yes"
+            LABELS "application;bank;ufmp;synthetic;regression")
+        if(COMMAND umicom_test_impact_owners)
+            umicom_test_impact_owners(bank.ufmp.simulation TARGETS umicom-bank-console)
+        endif()
+    endif()
+    unset(_bank_ufmp_definitions)
+endif()
+
+# The preview is calculated by Framework; a product host never nets money itself.
+if(TARGET umicom-bank-console AND TARGET Umicom::finance)
+    get_target_property(_bank_clearing_definitions Umicom::finance INTERFACE_COMPILE_DEFINITIONS)
+    if(BUILD_TESTING AND "UMICOM_HAS_UFMP_CLEARING=1" IN_LIST _bank_clearing_definitions)
+        add_test(NAME bank.ufmp.clearing-preview COMMAND umicom-bank-console --clearing-preview)
+        set_tests_properties(bank.ufmp.clearing-preview PROPERTIES TIMEOUT 30
+            PASS_REGULAR_EXPRESSION "Net receive: -8500" LABELS "application;bank;ufmp;synthetic;regression")
+        if(COMMAND umicom_test_impact_owners)
+            umicom_test_impact_owners(bank.ufmp.clearing-preview TARGETS umicom-bank-console)
+        endif()
+    endif()
+    unset(_bank_clearing_definitions)
+endif()
