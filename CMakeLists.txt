@@ -523,3 +523,19 @@ if(TARGET umicom-bank-console AND TARGET Umicom::finance)
     endif()
     unset(_bank_clearing_definitions)
 endif()
+
+# Delivery recovery is a shared service; this host supplies only presentation.
+if(TARGET umicom-bank-console AND TARGET Umicom::financial_inbox)
+    target_link_libraries(umicom-bank-console PRIVATE Umicom::financial_inbox)
+    get_target_property(_bank_outbox_definitions Umicom::financial_inbox INTERFACE_COMPILE_DEFINITIONS)
+    if(BUILD_TESTING AND "UMICOM_HAS_UFMP_OUTBOX=1" IN_LIST _bank_outbox_definitions)
+        add_test(NAME bank.ufmp.outbox-recovery COMMAND umicom-bank-console --outbox-recovery)
+        set_tests_properties(bank.ufmp.outbox-recovery PROPERTIES TIMEOUT 30
+            PASS_REGULAR_EXPRESSION "Automatic retry after ambiguity: no"
+            LABELS "application;bank;ufmp;synthetic;regression")
+        if(COMMAND umicom_test_impact_owners)
+            umicom_test_impact_owners(bank.ufmp.outbox-recovery TARGETS umicom-bank-console)
+        endif()
+    endif()
+    unset(_bank_outbox_definitions)
+endif()
