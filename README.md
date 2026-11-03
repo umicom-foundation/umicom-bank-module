@@ -106,3 +106,7 @@ The shared Framework review compares dated booked activity with opening and
 closing balances you supply. Pending entries remain separate, and edits
 invalidate the previous export. This does not connect to a bank or post money.
 See [the statement review guide](docs/STATEMENT_RECONCILIATION.html).
+
+## Native workflow guide
+
+Read the [native workflow guide](docs/NATIVE_WORKFLOWS.html) for step-by-step use of the implemented controls, expected results and current limits.

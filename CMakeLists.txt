@@ -539,3 +539,7 @@ if(TARGET umicom-bank-console AND TARGET Umicom::financial_inbox)
     endif()
     unset(_bank_outbox_definitions)
 endif()
+
+# Ship the practical native-control guide with the existing product help.
+install(FILES docs/NATIVE_WORKFLOWS.html
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/umicom/bank/docs)
