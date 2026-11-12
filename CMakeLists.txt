@@ -106,6 +106,24 @@ if(UMICOM_BANK_BUILD_CONSOLE)
     target_link_libraries(umicom-bank-console PRIVATE Umicom::bank_module)
     umicom_apply_warnings(umicom-bank-console)
     umicom_apply_sanitizers(umicom-bank-console)
+
+    # Console products use the same Framework-owned identity as their GUI host.
+    # Retain console subsystem and existing runtime ownership; this adds only
+    # canonical artwork and native executable metadata.
+    if(NOT COMMAND umicom_apply_application_branding)
+        include("${CMAKE_CURRENT_SOURCE_DIR}/../../framework/cmake/UmicomApplicationBranding.cmake")
+    endif()
+    if(WIN32)
+        enable_language(RC)
+    endif()
+    umicom_apply_application_branding(
+        TARGET umicom-bank-console
+        PRODUCT_NAME "Umicom Bank Console" INTERNAL_NAME "umicom-bank-console"
+        VERSION_MAJOR ${PROJECT_VERSION_MAJOR}
+        VERSION_MINOR ${PROJECT_VERSION_MINOR}
+        VERSION_PATCH ${PROJECT_VERSION_PATCH}
+        RESOURCE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../framework/resources"
+        NO_RUNTIME_DEPLOYMENT)
 endif()
 
 # Bank supplies only identity and controllers. Framework owns the complete
